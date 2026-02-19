@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nellie's System Monitor</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #1a1a2e;
+      color: #eee;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    h1 { text-align: center; margin-bottom: 20px; color: #00d4ff; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .card {
+      background: #16213e;
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    }
+    .card h3 { color: #888; font-size: 12px; text-transform: uppercase; margin-bottom: 10px; }
+    .card .value { font-size: 28px; font-weight: bold; }
+    .card .value.hot { color: #ff4757; }
+    .card .value.warm { color: #ffa502; }
+    .card .value.cool { color: #2ed573; }
+    .card .value.ok { color: #7bed9f; }
+    .card .value.error { color: #ff6b81; }
+    .card .value.success { color: #7bed9f; }
+    .last-updated { text-align: center; margin-top: 20px; color: #666; font-size: 12px; }
+    .history { max-width: 900px; margin: 30px auto; }
+    .history h2 { color: #00d4ff; margin-bottom: 15px; font-size: 18px; }
+    table { width: 100%; border-collapse: collapse; background: #16213e; border-radius: 10px; overflow: hidden; }
+    th, td { padding: 10px; text-align: left; border-bottom: 1px solid #2a2a4a; }
+    th { background: #0f3460; color: #00d4ff; font-size: 12px; }
+    td { font-size: 13px; }
+    tr:hover { background: #1f2b4d; }
+    .status-running { color: #2ed573; }
+    .status-stopped { color: #ff4757; }
+  </style>
+</head>
+<body>
+  <h1>🖥️ Nellie's System Monitor</h1>
+  
+  <div class="grid">
+    <div class="card">
+      <h3>🌡️ CPU Temperature</h3>
+      <div class="value" id="temp">--°C</div>
+    </div>
+    <div class="card">
+      <h3>💾 Memory</h3>
+      <div class="value" id="memory">--/--</div>
+    </div>
+    <div class="card">
+      <h3>⚙️ Load Average</h3>
+      <div class="value" id="load">--</div>
+    </div>
+    <div class="card">
+      <h3>🌐 Chromium</h3>
+      <div class="value" id="chromium">--</div>
+    </div>
+    <div class="card">
+      <h3>🚀 Gateway</h3>
+      <div class="value" id="gateway">--</div>
+    </div>
+    <div class="card">
+      <h3>📊 Sessions</h3>
+      <div class="value" id="sessions">--</div>
+    </div>
+  </div>
+
+  <div class="history">
+    <h2>📜 Recent History</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Time</th>
+          <th>Temp</th>
+          <th>Memory</th>
+          <th>Load</th>
+          <th>Chromium</th>
+          <th>Gateway</th>
+        </tr>
+      </thead>
+      <tbody id="history"></tbody>
+    </table>
+  </div>
+
+  <div class="last-updated">Last updated: <span id="updated">--</span></div>
+
+  <script>
+    const DATA_FILE = 'data.json';
+    const HISTORY_FILE = 'history.json';
+    const REFRESH_MS = 30000;
+    
+    let history = [];
+    const MAX_HISTORY = 20;
+
+    function getTempClass(temp) {
+      if (temp >= 70) return 'hot';
+      if (temp >= 60) return 'warm';
+      if (temp >= 50) return 'cool';
+      return 'ok';
+    }
+
+    function formatTime(isoString) {
+      const d = new Date(isoString);
+      return d.toLocaleTimeString();
+    }
+
+    function updateDisplay(data) {
+      // Temperature
+      const tempEl = document.getElementById('temp');
+      tempEl.textContent = data.temp_celsius.toFixed(1) + '°C';
+      tempEl.className = 'value ' + getTempClass(data.temp_celsius);
+
+      // Memory
+      document.getElementById('memory').textContent = data.memory_used;
+
+      // Load
+      const loadEl = document.getElementById('load');
+      loadEl.textContent = data.load_avg;
+      loadEl.className = 'value ' + (parseFloat(data.load_avg) > 2 ? 'warm' : 'ok');
+
+      // Chromium
+      const chromEl = document.getElementById('chromium');
+      chromEl.textContent = data.chromium_processes;
+      chromEl.className = 'value ' + (data.chromium_processes > 5 ? 'hot' : 'ok');
+
+      // Gateway
+      const gwEl = document.getElementById('gateway');
+      gwEl.textContent = data.gateway_status;
+      gwEl.className = 'value ' + (data.gateway_status === 'running' ? 'success' : 'error');
+
+      // Sessions
+      document.getElementById('sessions').textContent = data.sessions;
+
+      // Updated time
+      document.getElementById('updated').textContent = formatTime(data.timestamp);
+
+      // Add to history
+      history.push(data);
+      if (history.length > MAX_HISTORY) history.shift();
+      
+      // Save history
+      localStorage.setItem('systemHistory', JSON.stringify(history));
+      
+      renderHistory();
+    }
+
+    function renderHistory() {
+      const tbody = document.getElementById('history');
+      tbody.innerHTML = history.slice().reverse().map(d => `
+        <tr>
+          <td>${formatTime(d.timestamp)}</td>
+          <td class="${getTempClass(d.temp_celsius)}">${d.temp_celsius.toFixed(1)}°C</td>
+          <td>${d.memory_used}</td>
+          <td>${d.load_avg}</td>
+          <td>${d.chromium_processes}</td>
+          <td class="${d.gateway_status === 'running' ? 'status-running' : 'status-stopped'}">${d.gateway_status}</td>
+        </tr>
+      `).join('');
+    }
+
+    async function fetchData() {
+      try {
+        const response = await fetch(DATA_FILE);
+        const data = await response.json();
+        updateDisplay(data);
+      } catch (e) {
+        console.error('Failed to fetch data:', e);
+      }
+    }
+
+    // Load history from localStorage
+    try {
+      history = JSON.parse(localStorage.getItem('systemHistory')) || [];
+    } catch (e) {
+      history = [];
+    }
+
+    // Initial fetch
+    fetchData();
+
+    // Auto-refresh
+    setInterval(fetchData, REFRESH_MS);
+  </script>
+</body>
+</html>
