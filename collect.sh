@@ -22,22 +22,16 @@ else
     GATEWAY_STATUS="stopped"
 fi
 
-# Agent activity (from OpenClaw sessions)
-# Get session info without LLM calls - just metadata
-AGENT_SESSIONS=""
-if command -v openclaw &> /dev/null; then
-    # Count active sessions by reading session files
-    SESSION_COUNT=$(ls -1 ~/.openclaw/sessions/*.session 2>/dev/null | wc -l)
-    
-    # Get recent session activity (last 5 sessions, just names)
-    RECENT_SESSIONS=$(ls -lt ~/.openclaw/sessions/*.session 2>/dev/null | head -5 | awk -F'/' '{print $NF}' | sed 's/.session//' | tr '\n' ',' | sed 's/,$//')
-    
-    # Get today's conversation count (rough proxy for activity)
-    TODAY_MSGS=$(find ~/.openclaw/sessions -name "*.session" -mmin -60 2>/dev/null | wc -l)
+# Agent activity - check for recent cron runs (proxy for agent activity)
+# Count cron runs in last 30 min as proxy for activity
+RECENT_CRON_RUNS=$(find ~/.openclaw/cron/runs -name "*.jsonl" -mmin -30 2>/dev/null | wc -l)
+
+# Also check if we have recent heartbeat activity
+LAST_HEARTBEAT=$(find ~/.openclaw/cron/runs -name "*.jsonl" -mmin -30 2>/dev/null | head -1)
+if [ -n "$LAST_HEARTBEAT" ]; then
+    AGENT_STATUS="active"
 else
-    SESSION_COUNT=0
-    RECENT_SESSIONS="unknown"
-    TODAY_MSGS=0
+    AGENT_STATUS="idle"
 fi
 
 # Current time ISO
@@ -53,8 +47,8 @@ cat > "$DATA_FILE" << EOF
   "load_avg": $LOAD,
   "chromium_processes": $CHROMIUM_COUNT,
   "gateway_status": "$GATEWAY_STATUS",
-  "active_sessions": $SESSION_COUNT,
-  "recent_sessions": "$RECENT_SESSIONS",
+  "active_sessions": $RECENT_CRON_RUNS,
+  "agent_status": "$AGENT_STATUS",
   "uptime": "$UPTIME"
 }
 EOF
@@ -76,7 +70,8 @@ history.append({
   "load_avg": $LOAD,
   "chromium_processes": $CHROMIUM_COUNT,
   "gateway_status": "$GATEWAY_STATUS",
-  "active_sessions": $SESSION_COUNT
+  "active_sessions": $RECENT_CRON_RUNS,
+  "agent_status": "$AGENT_STATUS"
 })
 
 # Keep last MAX_HISTORY entries
