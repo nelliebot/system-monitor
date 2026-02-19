@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Nellie's System Monitor</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #1a1a2e; color: #eee; padding: 20px; }
+        h1 { font-size: 1.5rem; margin-bottom: 20px; color: #76B852; }
+        h2 { font-size: 1.1rem; margin: 20px 0 10px; color: #aaffaa; }
+        
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 20px; }
+        .stat-card { background: #16213e; padding: 15px; border-radius: 8px; text-align: center; }
+        .stat-value { font-size: 1.8rem; font-weight: bold; color: #76B852; }
+        .stat-label { font-size: 0.8rem; color: #888; margin-top: 5px; }
+        
+        .temp-card { grid-column: span 2; }
+        .temp-card .stat-value { color: #ff6b6b; }
+        
+        canvas { width: 100%; height: 200px; background: #16213e; border-radius: 8px; margin: 10px 0; }
+        
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        th, td { padding: 8px; text-align: left; border-bottom: 1px solid #333; }
+        th { color: #76B852; }
+        
+        .history-section { margin-top: 20px; }
+        .last-updated { font-size: 0.8rem; color: #666; margin-top: 20px; }
+        
+        .legend { display: flex; gap: 20px; font-size: 0.8rem; margin-bottom: 10px; }
+        .legend-item { display: flex; align-items: center; gap: 5px; }
+        .legend-color { width: 12px; height: 12px; border-radius: 2px; }
+        
+        @media (max-width: 500px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .temp-card { grid-column: span 2; }
+        }
+    </style>
+</head>
+<body>
+    <h1>🦞 Nellie's System Monitor</h1>
+    
+    <div class="stats-grid">
+        <div class="stat-card temp-card">
+            <div class="stat-value" id="temp">--</div>
+            <div class="stat-label">Temperature (°C)</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="memory">--</div>
+            <div class="stat-label">Memory</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="load">--</div>
+            <div class="stat-label">Load Avg</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="chromium">--</div>
+            <div class="stat-label">Chromium</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="sessions">--</div>
+            <div class="stat-label">Sessions</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="gateway">--</div>
+            <div class="stat-label">Gateway</div>
+        </div>
+    </div>
+    
+    <h2>📈 Temperature & Load (Last 24h)</h2>
+    <div class="legend">
+        <div class="legend-item"><div class="legend-color" style="background:#ff6b6b"></div>Temp °C</div>
+        <div class="legend-item"><div class="legend-color" style="background:#4dabf7"></div>Load</div>
+        <div class="legend-item"><div class="legend-color" style="background:#69db7c"></div>Sessions</div>
+    </div>
+    <canvas id="chart"></canvas>
+    
+    <div class="history-section">
+        <h2>📋 Recent Readings</h2>
+        <table>
+            <thead><tr><th>Time</th><th>Temp</th><th>Mem</th><th>Load</th><th>Chromium</th><th>Sessions</th></tr></thead>
+            <tbody id="history"></tbody>
+        </table>
+    </div>
+    
+    <div class="last-updated" id="updated">Last updated: --</div>
+
+    <script>
+        const DATA_URL = 'data.json';
+        const HISTORY_URL = 'history.json';
+        
+        async function loadData() {
+            try {
+                const [dataRes, historyRes] = await Promise.all([
+                    fetch(DATA_URL),
+                    fetch(HISTORY_URL)
+                ]);
+                
+                const data = await dataRes.json();
+                const history = await historyRes.json();
+                
+                // Update current stats
+                document.getElementById('temp').textContent = data.temp_celsius?.toFixed(1) || '--';
+                document.getElementById('memory').textContent = data.memory_used?.split('/')[0] || '--';
+                document.getElementById('load').textContent = data.load_avg || '--';
+                document.getElementById('chromium').textContent = data.chromium_processes || '0';
+                document.getElementById('sessions').textContent = data.active_sessions || '0';
+                document.getElementById('gateway').textContent = data.gateway_status || '--';
+                
+                // Update timestamp
+                const date = new Date(data.timestamp);
+                document.getElementById('updated').textContent = 'Last updated: ' + date.toLocaleString();
+                
+                // Draw chart
+                drawChart(history);
+                
+                // Update history table (last 10)
+                const tbody = document.getElementById('history');
+                tbody.innerHTML = '';
+                const recent = history.slice(-10).reverse();
+                recent.forEach(entry => {
+                    const row = document.createElement('tr');
+                    const time = new Date(entry.timestamp).toLocaleTimeString();
+                    row.innerHTML = `<td>${time}</td><td>${entry.temp_celsius?.toFixed(1)}</td><td>${entry.memory_used?.split('/')[0]}</td><td>${entry.load_avg}</td><td>${entry.chromium_processes}</td><td>${entry.active_sessions}</td>`;
+                    tbody.appendChild(row);
+                });
+                
+            } catch (e) {
+                console.error('Error loading data:', e);
+            }
+        }
+        
+        function drawChart(history) {
+            const canvas = document.getElementById('chart');
+            const ctx = canvas.getContext('2d');
+            
+            // Set canvas size
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width * 2;
+            canvas.height = rect.height * 2;
+            ctx.scale(2, 2);
+            
+            const width = rect.width;
+            const height = rect.height;
+            const padding = 30;
+            
+            // Get data ranges
+            const temps = history.map(h => h.temp_celsius || 0);
+            const loads = history.map(h => h.load_avg || 0);
+            const sessions = history.map(h => h.active_sessions || 0);
+            
+            const maxTemp = Math.max(...temps, 80);
+            const maxLoad = Math.max(...loads, 5);
+            const maxSessions = Math.max(...sessions, 10);
+            
+            const maxY = Math.max(maxTemp, maxLoad * 10, maxSessions * 5);
+            const minY = 0;
+            
+            // Clear
+            ctx.fillStyle = '#16213e';
+            ctx.fillRect(0, 0, width, height);
+            
+            // Grid lines
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 0.5;
+            for (let i = 0; i <= 4; i++) {
+                const y = padding + (height - 2 * padding) * i / 4;
+                ctx.beginPath();
+                ctx.moveTo(padding, y);
+                ctx.lineTo(width - padding, y);
+                ctx.stroke();
+            }
+            
+            // Helper to map data to Y
+            const mapY = (val) => height - padding - (val / maxY) * (height - 2 * padding);
+            
+            // Draw temperature line
+            ctx.strokeStyle = '#ff6b6b';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            history.forEach((h, i) => {
+                const x = padding + (i / (history.length - 1)) * (width - 2 * padding);
+                const y = mapY(h.temp_celsius || 0);
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            });
+            ctx.stroke();
+            
+            // Draw load line (scaled)
+            ctx.strokeStyle = '#4dabf7';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            history.forEach((h, i) => {
+                const x = padding + (i / (history.length - 1)) * (width - 2 * padding);
+                const y = mapY((h.load_avg || 0) * 10);
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            });
+            ctx.stroke();
+            
+            // Draw sessions (dots)
+            ctx.fillStyle = '#69db7c';
+            history.forEach((h, i) => {
+                const x = padding + (i / (history.length - 1)) * (width - 2 * padding);
+                const y = mapY((h.active_sessions || 0) * 5);
+                if (h.active_sessions > 0) {
+                    ctx.beginPath();
+                    ctx.arc(x, y, 3, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            });
+            
+            // Labels
+            ctx.fillStyle = '#888';
+            ctx.font = '10px sans-serif';
+            ctx.fillText(maxY.toFixed(0), 5, padding);
+            ctx.fillText('0', 5, height - padding);
+        }
+        
+        // Load on start
+        loadData();
+        
+        // Refresh every 30 seconds
+        setInterval(loadData, 30000);
+    </script>
+</body>
+</html>

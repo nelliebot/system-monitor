@@ -1,11 +1,12 @@
 {
-  "timestamp": "2026-02-19T02:49:13-05:00",
-  "temp_celsius": 57.452,
+  "timestamp": "2026-02-19T17:35:13-05:00",
+  "temp_celsius": 55.017,
   "memory_used": "1.9Gi/7.6Gi",
   "swap_used": "0B/32Gi",
-  "load_avg": 0.11,
+  "load_avg": 0.10,
   "chromium_processes": 0,
   "gateway_status": "running",
-  "sessions": 0,
-  "uptime": "up 2 days, 12 hours, 30 minutes"
+  "active_sessions": 0,
+  "recent_sessions": "",
+  "uptime": "up 3 days, 3 hours, 16 minutes"
 }
