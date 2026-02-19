@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>About - Nellie's System Monitor</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #1a1a2e; color: #eee; padding: 20px; max-width: 600px; margin: 0 auto; }
+        h1 { font-size: 1.5rem; margin-bottom: 20px; color: #76B852; }
+        h2 { font-size: 1.2rem; margin: 25px 0 10px; color: #aaffaa; border-bottom: 1px solid #333; padding-bottom: 5px; }
+        h3 { font-size: 1rem; margin: 15px 0 8px; color: #4dabf7; }
+        p, li { font-size: 0.9rem; line-height: 1.6; color: #ccc; }
+        ul { margin-left: 20px; }
+        
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+        .tab { padding: 10px 20px; background: #16213e; border: none; border-radius: 8px; color: #888; cursor: pointer; font-size: 0.9rem; }
+        .tab.active { background: #76B852; color: #fff; }
+        
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 0.85rem; }
+        th, td { padding: 8px; text-align: left; border-bottom: 1px solid #333; }
+        th { color: #76B852; }
+        td:first-child { color: #4dabf7; font-weight: bold; }
+        
+        .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; margin-left: 5px; }
+        .badge-green { background: #76B852; color: #fff; }
+        .badge-blue { background: #4dabf7; color: #fff; }
+        
+        .back-link { display: inline-block; margin-bottom: 20px; color: #666; text-decoration: none; }
+        .back-link:hover { color: #76B852; }
+        
+        .version { margin-top: 30px; padding-top: 20px; border-top: 1px solid #333; }
+        .version-item { margin-bottom: 15px; padding-left: 15px; border-left: 2px solid #76B852; }
+        .version-date { font-size: 0.75rem; color: #666; }
+        .version-title { font-weight: bold; color: #fff; }
+    </style>
+</head>
+<body>
+    <a href="dashboard.html" class="back-link">← Back to Dashboard</a>
+    
+    <h1>� About Nellie's System Monitor</h1>
+    
+    <div class="tabs">
+        <button class="tab active" onclick="showTab('tech')">Technical Notes</button>
+        <button class="tab" onclick="showTab('changelog')">Changelog</button>
+    </div>
+    
+    <div id="tech" class="tab-content active">
+        <h2>🔧 Technical Notes</h2>
+        
+        <h3>No LLM Calls - Guaranteed</h3>
+        <p>This dashboard runs <strong>zero LLM calls</strong>. All data collection is done via shell scripts that read system files directly:</p>
+        <ul>
+            <li>Temperature from <code>/sys/class/thermal/</code></li>
+            <li>Memory from <code>free -h</code></li>
+            <li>Load average from <code>uptime</code></li>
+            <li>Process counts from <code>ps aux</code></li>
+            <li>Agent activity from OpenClaw cron run logs</li>
+        </ul>
+        
+        <h3>Data Collection</h3>
+        <table>
+            <tr><th>Metric</th><th>Source</th><th>What it means</th></tr>
+            <tr><td>Temperature</td><td>/sys/class/thermal</td><td>CPU temp in °C</td></tr>
+            <tr><td>Memory</td><td>free -h</td><td>RAM used / total</td></tr>
+            <tr><td>Load Avg</td><td>uptime</td><td>System load (0-4 = normal)</td></tr>
+            <tr><td>Chromium</td><td>ps aux</td><td># of chromium processes</td></tr>
+            <tr><td>Gateway</td><td>pgrep</td><td>Is OpenClaw running?</td></tr>
+            <tr><td>Sessions</td><td>cron runs</td><td>Cron runs in last 30 min</td></tr>
+            <tr><td>Agent Status</td><td>derived</td><td>"active" if sessions > 0</td></tr>
+        </table>
+        
+        <h3>Resource Usage</h3>
+        <p>
+            <span class="badge badge-green">Very Low</span> Collector runs every 5 min (~0.01 CPU)<br>
+            <span class="badge badge-green">Very Low</span> GitHub push only 4x/day<br>
+            <span class="badge badge-green">Zero</span> LLM calls<br>
+            <span class="badge badge-green">Zero</span> External API calls except GitHub
+        </p>
+        
+        <h3>Correlation Insights</h3>
+        <p>The chart shows temperature, load, and agent activity over time. When agent activity (green dots) correlates with temperature spikes, that shows agents are doing work. Load avg shows overall system demand.</p>
+        
+        <h3>How to Read the Chart</h3>
+        <ul>
+            <li><strong>Red line</strong>: Temperature (°C) - higher = more CPU work</li>
+            <li><strong>Blue line</strong>: Load average × 10 (scaled to fit)</li>
+            <li><strong>Green dots</strong>: Agent activity (cron runs in last 30 min)</li>
+        </ul>
+        
+        <p style="margin-top: 20px; color: #666; font-size: 0.8rem;">
+            Last updated: 2026-02-19<br>
+            Version 2.1
+        </p>
+    </div>
+    
+    <div id="changelog" class="tab-content">
+        <h2>📝 Changelog</h2>
+        
+        <div class="version">
+            <div class="version-item">
+                <div class="version-date">2026-02-19</div>
+                <div class="version-title">v2.1 - Activity Tracking</div>
+                <ul>
+                    <li>Added "Sessions" metric - counts cron runs in last 30 min as proxy for agent activity</li>
+                    <li>Added "Agent Status" - shows "active" or "idle" based on recent cron activity</li>
+                    <li>Expanded history to 288 readings (24 hours at 5-min intervals)</li>
+                    <li>Added this About page with Technical Notes and Changelog</li>
+                </ul>
+            </div>
+            
+            <div class="version-item">
+                <div class="version-date">2026-02-19</div>
+                <div class="version-title">v2.0 - Chart Overhaul</div>
+                <ul>
+                    <li>New dashboard with line chart (vanilla JS, no external libs)</li>
+                    <li>Shows temperature + load + sessions over time</li>
+                    <li>Mobile-friendly design</li>
+                    <li>Auto-refresh every 30 seconds</li>
+                </ul>
+            </div>
+            
+            <div class="version-item">
+                <div class="version-date">2026-02-14</div>
+                <div class="version-title">v1.0 - Initial Release</div>
+                <ul>
+                    <li>Basic stats: temp, memory, load</li>
+                    <li>Password-protected with Staticrypt</li>
+                    <li>Pushes to GitHub Pages</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>
