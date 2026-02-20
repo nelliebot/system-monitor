@@ -86,9 +86,8 @@ fi
 
 echo "Collected at $TIMESTAMP | Temp: ${TEMP}°C | Sessions: $SESSION_COUNT"
 
-# Push to GitHub (hourly to save API calls)
-CURRENT_HOUR=$(date +%H)
-if [ "$CURRENT_HOUR" = "00" ] || [ "$CURRENT_HOUR" = "06" ] || [ "$CURRENT_HOUR" = "12" ] || [ "$CURRENT_HOUR" = "18" ]; then
+# Push to GitHub (every collection cycle)
+if [ -n "$GH_PAT" ]; then
     # Use GH_PAT from environment
     
     # Push data.json
@@ -101,16 +100,14 @@ if [ "$CURRENT_HOUR" = "00" ] || [ "$CURRENT_HOUR" = "06" ] || [ "$CURRENT_HOUR"
           -d "{\"message\":\"Update data\",\"content\":\"$DATA_CONTENT\",\"sha\":\"$SHA_DATA\",\"branch\":\"gh-pages\"}" > /dev/null
     fi
     
-    # Push history.json (larger, so only on even hours)
-    if [ $(date +%H) -eq 0 ] || [ $(date +%H) -eq 12 ]; then
-        HISTORY_CONTENT=$(base64 -w0 "$HISTORY_FILE")
-        SHA_HISTORY=$(curl -s "https://api.github.com/repos/nelliebot/system-monitor/contents/history.json?ref=gh-pages" -H "Authorization: token $GH_PAT" | python3 -c "import sys,json; print(json.load(sys.stdin).get('sha',''))" 2>/dev/null)
-        if [ -n "$SHA_HISTORY" ]; then
-            curl -s -X PUT "https://api.github.com/repos/nelliebot/system-monitor/contents/history.json" \
-              -H "Authorization: token $GH_PAT" \
-              -H "Content-Type: application/json" \
-              -d "{\"message\":\"Update history\",\"content\":\"$HISTORY_CONTENT\",\"sha\":\"$SHA_HISTORY\",\"branch\":\"gh-pages\"}" > /dev/null
-        fi
+    # Push history.json every time (small enough to push frequently)
+    HISTORY_CONTENT=$(base64 -w0 "$HISTORY_FILE")
+    SHA_HISTORY=$(curl -s "https://api.github.com/repos/nelliebot/system-monitor/contents/history.json?ref=gh-pages" -H "Authorization: token $GH_PAT" | python3 -c "import sys,json; print(json.load(sys.stdin).get('sha',''))" 2>/dev/null)
+    if [ -n "$SHA_HISTORY" ]; then
+        curl -s -X PUT "https://api.github.com/repos/nelliebot/system-monitor/contents/history.json" \
+          -H "Authorization: token $GH_PAT" \
+          -H "Content-Type: application/json" \
+          -d "{\"message\":\"Update history\",\"content\":\"$HISTORY_CONTENT\",\"sha\":\"$SHA_HISTORY\",\"branch\":\"gh-pages\"}" > /dev/null
     fi
     echo "Pushed to GitHub"
 fi
