@@ -102,7 +102,7 @@
                 // Update current stats
                 document.getElementById('temp').textContent = data.temp_celsius?.toFixed(1) || '--';
                 document.getElementById('memory').textContent = data.memory_used?.split('/')[0] || '--';
-                document.getElementById('load').textContent = data.load_avg || '--';
+                document.getElementById('load').textContent = data.load_avg !== undefined ? data.load_avg : '--';
                 document.getElementById('chromium').textContent = data.chromium_processes || '0';
                 document.getElementById('sessions').textContent = data.active_sessions || '0';
                 document.getElementById('gateway').textContent = data.gateway_status || '--';
