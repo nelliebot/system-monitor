@@ -13,7 +13,7 @@ mem_used=$(echo $mem_info | awk '{print $3}')
 mem_total=$(echo $mem_info | awk '{print $2}')
 swap_used=$(free -h 2>/dev/null | grep Swap | awk '{print $3}')
 load_avg=$(uptime 2>/dev/null | awk -F'load average:' '{print $2}' | awk '{print $1}' | sed 's/,//')
-chromium_procs=$(pgrep -c chromium 2>/dev/null || echo 0)
+chromium_procs=$(pgrep -c chromium 2>/dev/null) || chromium_procs=0
 
 # Gateway status
 gateway_status="stopped"
