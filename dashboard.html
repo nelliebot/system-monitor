@@ -146,7 +146,7 @@
                 const historyText = await historyRes.text();
                 const history = JSON.parse(historyText);
                 
-                console.log('Data loaded:', data);
+                console.log("Data loaded:", data); alert("Data: " + JSON.stringify(data).substring(0,200));
                 
                 // System stats - with safety checks
                 if (data.temp_celsius !== undefined) {
