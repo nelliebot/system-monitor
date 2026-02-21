@@ -1,1 +1,1 @@
-[]
+[{"timestamp": "2026-02-21T22:43:19Z", "temp_celsius": 61.3, "memory_used": "1.5GiB/7.6Gi", "load_avg": "0.00", "chromium_processes": 0, "gateway_status": "running", "active_sessions": 1, "total_calls": 410, "total_tokens": 44332514, "total_errors": 33}]
