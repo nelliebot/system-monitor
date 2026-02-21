@@ -1,75 +1,5 @@
 [
   {
-    "timestamp": "2026-02-19T19:30:01-05:00",
-    "temp_celsius": 55.504,
-    "memory_used": "1.9Gi/7.6Gi",
-    "load_avg": 0.03,
-    "chromium_processes": 0,
-    "gateway_status": "running",
-    "active_sessions": 1,
-    "agent_status": "active"
-  },
-  {
-    "timestamp": "2026-02-19T19:35:02-05:00",
-    "temp_celsius": 55.991,
-    "memory_used": "1.9Gi/7.6Gi",
-    "load_avg": 0.0,
-    "chromium_processes": 0,
-    "gateway_status": "running",
-    "active_sessions": 1,
-    "agent_status": "active"
-  },
-  {
-    "timestamp": "2026-02-19T19:40:01-05:00",
-    "temp_celsius": 55.504,
-    "memory_used": "1.9Gi/7.6Gi",
-    "load_avg": 0.01,
-    "chromium_processes": 0,
-    "gateway_status": "running",
-    "active_sessions": 1,
-    "agent_status": "active"
-  },
-  {
-    "timestamp": "2026-02-19T19:45:01-05:00",
-    "temp_celsius": 54.53,
-    "memory_used": "1.9Gi/7.6Gi",
-    "load_avg": 0.02,
-    "chromium_processes": 0,
-    "gateway_status": "running",
-    "active_sessions": 1,
-    "agent_status": "active"
-  },
-  {
-    "timestamp": "2026-02-19T19:50:01-05:00",
-    "temp_celsius": 55.504,
-    "memory_used": "1.9Gi/7.6Gi",
-    "load_avg": 0.04,
-    "chromium_processes": 0,
-    "gateway_status": "running",
-    "active_sessions": 1,
-    "agent_status": "active"
-  },
-  {
-    "timestamp": "2026-02-19T19:55:02-05:00",
-    "temp_celsius": 55.991,
-    "memory_used": "1.9Gi/7.6Gi",
-    "load_avg": 0.0,
-    "chromium_processes": 0,
-    "gateway_status": "running",
-    "active_sessions": 1,
-    "agent_status": "active"
-  },
-  {
-    "timestamp": "2026-02-19T20:00:01-05:00",
-    "temp_celsius": 55.504,
-    "memory_used": "1.9Gi/7.6Gi",
-    "load_avg": 0.04,
-    "chromium_processes": 0,
-    "gateway_status": "running",
-    "active_sessions": 1,
-    "agent_status": "active"
-  },
-  {
     "timestamp": "2026-02-19T20:05:01-05:00",
     "temp_celsius": 55.017,
     "memory_used": "1.9Gi/7.6Gi",
@@ -2875,6 +2805,76 @@
     "memory_used": "2.2Gi/7.6Gi",
     "load_avg": 0.12,
     "chromium_processes": 16,
+    "gateway_status": "running",
+    "active_sessions": 1,
+    "agent_status": "active"
+  },
+  {
+    "timestamp": "2026-02-21T04:10:01-05:00",
+    "temp_celsius": 56.965,
+    "memory_used": "2.2Gi/7.6Gi",
+    "load_avg": 0.1,
+    "chromium_processes": 16,
+    "gateway_status": "running",
+    "active_sessions": 1,
+    "agent_status": "active"
+  },
+  {
+    "timestamp": "2026-02-21T04:15:01-05:00",
+    "temp_celsius": 57.452,
+    "memory_used": "2.2Gi/7.6Gi",
+    "load_avg": 0.47,
+    "chromium_processes": 16,
+    "gateway_status": "running",
+    "active_sessions": 1,
+    "agent_status": "active"
+  },
+  {
+    "timestamp": "2026-02-21T04:20:01-05:00",
+    "temp_celsius": 57.452,
+    "memory_used": "2.2Gi/7.6Gi",
+    "load_avg": 0.0,
+    "chromium_processes": 16,
+    "gateway_status": "running",
+    "active_sessions": 1,
+    "agent_status": "active"
+  },
+  {
+    "timestamp": "2026-02-21T04:25:01-05:00",
+    "temp_celsius": 56.478,
+    "memory_used": "2.2Gi/7.6Gi",
+    "load_avg": 0.03,
+    "chromium_processes": 16,
+    "gateway_status": "running",
+    "active_sessions": 1,
+    "agent_status": "active"
+  },
+  {
+    "timestamp": "2026-02-21T04:30:01-05:00",
+    "temp_celsius": 57.939,
+    "memory_used": "2.2Gi/7.6Gi",
+    "load_avg": 0.09,
+    "chromium_processes": 16,
+    "gateway_status": "running",
+    "active_sessions": 1,
+    "agent_status": "active"
+  },
+  {
+    "timestamp": "2026-02-21T04:35:01-05:00",
+    "temp_celsius": 56.965,
+    "memory_used": "2.1Gi/7.6Gi",
+    "load_avg": 0.06,
+    "chromium_processes": 11,
+    "gateway_status": "running",
+    "active_sessions": 1,
+    "agent_status": "active"
+  },
+  {
+    "timestamp": "2026-02-21T04:40:01-05:00",
+    "temp_celsius": 56.965,
+    "memory_used": "2.1Gi/7.6Gi",
+    "load_avg": 0.0,
+    "chromium_processes": 11,
     "gateway_status": "running",
     "active_sessions": 1,
     "agent_status": "active"
