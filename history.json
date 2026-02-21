@@ -1,4 +1,1 @@
-{"timestamp":"2026-02-21T22:41:39Z","temp_celsius":60.9,"memory_used":"1.5GiB/7.6Gi","load_avg":"0.01","chromium_processes":0,"gateway_status":"running","active_sessions":1,"total_calls":402,"total_tokens":42910787,"total_errors":33}
-,
-{"timestamp":"2026-02-21T22:41:56Z","temp_celsius":60.9,"memory_used":"1.5GiB/7.6Gi","load_avg":"0.01","chromium_processes":0,"gateway_status":"running","active_sessions":1,"total_calls":403,"total_tokens":43086681,"total_errors":33}
-]
+[]
