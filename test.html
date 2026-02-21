@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test</title>
+</head>
+<body style="background:#1a1a2e;color:#fff;font-family:sans-serif;padding:20px;">
+    <h1>🦞 Test Page</h1>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
+        <div style="background:#16213e;padding:20px;border-radius:8px;text-align:center;">
+            <div style="color:#888;font-size:12px;">TEMP</div>
+            <div id="temp" style="font-size:24px;color:#00d9ff;">--</div>
+        </div>
+        <div style="background:#16213e;padding:20px;border-radius:8px;text-align:center;">
+            <div style="color:#888;font-size:12px;">MEMORY</div>
+            <div id="memory" style="font-size:24px;color:#00d9ff;">--</div>
+        </div>
+        <div style="background:#16213e;padding:20px;border-radius:8px;text-align:center;">
+            <div style="color:#888;font-size:12px;">CALLS</div>
+            <div id="calls" style="font-size:24px;color:#00d9ff;">--</div>
+        </div>
+    </div>
+    <p id="status" style="margin-top:20px;color:#888;">Loading...</p>
+    <script>
+        alert("JS running");
+        document.getElementById('temp').textContent = "58°C";
+        document.getElementById('memory').textContent = "1.5Gi";
+        document.getElementById('calls').textContent = "250";
+        document.getElementById('status').textContent = "Updated!";
+        alert("Done setting values");
+    </script>
+</body>
+</html>
