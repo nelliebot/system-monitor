@@ -33,7 +33,6 @@
     <div class="container">
         <h1>🦞 Nellie's System Monitor</h1>
         
-        <!-- System Stats -->
         <div class="section">
             <h2>🔧 System</h2>
             <div class="grid">
@@ -59,12 +58,11 @@
                 </div>
                 <div class="card">
                     <h3>Uptime</h3>
-                    <div class="value" id="uptime" style="font-size: 14px;">--</div>
+                    <div class="value" id="uptime">--</div>
                 </div>
             </div>
         </div>
 
-        <!-- Usage Stats -->
         <div class="section">
             <h2>📡 API Usage (Last 24h)</h2>
             <div class="grid">
@@ -91,7 +89,6 @@
             </div>
         </div>
 
-        <!-- History -->
         <div class="section">
             <h2>📊 History</h2>
             <table class="history-table">
@@ -119,6 +116,7 @@
 
     <script>
         function formatTime(ts) {
+            if (!ts) return '--';
             const d = new Date(ts);
             return d.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
         }
@@ -142,59 +140,71 @@
                     fetch('data.json'),
                     fetch('history.json')
                 ]);
+                
                 const data = await dataRes.json();
-                const history = await historyRes.json();
+                const historyText = await historyRes.text();
+                const history = JSON.parse(historyText);
                 
-                // System stats
-                const temp = document.getElementById('temp');
-                temp.textContent = data.temp_celsius.toFixed(1) + '°C';
-                temp.className = 'value ' + getTempClass(data.temp_celsius);
+                console.log('Data loaded:', data);
                 
-                document.getElementById('memory').textContent = data.memory_used;
+                // System stats - with safety checks
+                if (data.temp_celsius !== undefined) {
+                    document.getElementById('temp').textContent = data.temp_celsius.toFixed(1) + '°C';
+                    document.getElementById('temp').className = 'value ' + getTempClass(data.temp_celsius);
+                }
                 
-                const load = document.getElementById('load');
-                load.textContent = data.load_avg.toFixed(2);
-                load.className = 'value' + (data.load_avg > 4 ? ' danger' : data.load_avg > 2 ? ' warning' : '');
+                if (data.memory_used) {
+                    document.getElementById('memory').textContent = data.memory_used;
+                }
                 
-                const chromium = document.getElementById('chromium');
-                chromium.textContent = data.chromium_processes;
-                chromium.className = 'value' + (data.chromium_processes > 10 ? ' warning' : '');
+                if (data.load_avg !== undefined) {
+                    document.getElementById('load').textContent = data.load_avg.toFixed(2);
+                }
                 
-                const gateway = document.getElementById('gateway');
-                gateway.textContent = data.gateway_status === 'running' ? '✓' : '✗';
-                gateway.className = 'value ' + (data.gateway_status === 'running' ? 'success' : 'danger');
+                if (data.chromium_processes !== undefined) {
+                    document.getElementById('chromium').textContent = data.chromium_processes;
+                }
                 
-                document.getElementById('uptime').textContent = data.uptime.split(' ').slice(0,4).join(' ');
+                if (data.gateway_status) {
+                    const gw = document.getElementById('gateway');
+                    gw.textContent = data.gateway_status === 'running' ? '✓' : '✗';
+                    gw.className = 'value ' + (data.gateway_status === 'running' ? 'success' : 'danger');
+                }
+                
+                if (data.uptime) {
+                    document.getElementById('uptime').textContent = data.uptime.split(' ').slice(0,4).join(' ');
+                }
                 
                 // Usage stats
-                const usage = data.usage || {};
-                document.getElementById('total_calls').textContent = usage.total_calls_24h || 0;
-                document.getElementById('total_tokens').textContent = formatTokens(usage.total_tokens_24h);
-                document.getElementById('input_tokens').textContent = formatTokens(usage.total_input_24h);
-                document.getElementById('output_tokens').textContent = formatTokens(usage.total_output_24h);
-                
-                const errorsEl = document.getElementById('total_errors');
-                const errors = usage.total_errors_24h || 0;
-                errorsEl.textContent = errors;
-                errorsEl.className = 'value' + (errors > 10 ? ' danger' : errors > 0 ? ' warning' : '');
+                if (data.usage) {
+                    document.getElementById('total_calls').textContent = data.usage.total_calls_24h || 0;
+                    document.getElementById('total_tokens').textContent = formatTokens(data.usage.total_tokens_24h);
+                    document.getElementById('input_tokens').textContent = formatTokens(data.usage.total_input_24h);
+                    document.getElementById('output_tokens').textContent = formatTokens(data.usage.total_output_24h);
+                    
+                    const errEl = document.getElementById('total_errors');
+                    errEl.textContent = data.usage.total_errors_24h || 0;
+                }
                 
                 document.getElementById('timestamp').textContent = new Date(data.timestamp).toLocaleString();
                 
                 // History table
                 const tbody = document.getElementById('history-body');
-                tbody.innerHTML = history.slice().reverse().slice(0, 20).map(h => `
-                    <tr>
-                        <td>${formatTime(h.timestamp)}</td>
-                        <td class="${getTempClass(h.temp_celsius)}">${h.temp_celsius.toFixed(1)}°C</td>
-                        <td>${h.memory_used}</td>
-                        <td>${h.load_avg.toFixed(2)}</td>
-                        <td>${h.chromium_processes}</td>
-                        <td style="color: ${h.gateway_status === 'running' ? '#2ed573' : '#ff4757'}">${h.gateway_status === 'running' ? '✓' : '✗'}</td>
-                        <td>${h.total_calls || '-'}</td>
-                        <td>${h.total_tokens ? formatTokens(h.total_tokens) : '-'}</td>
-                        <td style="color: ${h.total_errors > 0 ? '#ff4757' : '#888'}">${h.total_errors || '-'}</td>
-                    </tr>
-                `).join('');
+                if (history && history.length > 0) {
+                    tbody.innerHTML = history.slice().reverse().slice(0, 20).map(h => `
+                        <tr>
+                            <td>${formatTime(h.timestamp)}</td>
+                            <td class="${getTempClass(h.temp_celsius)}">${h.temp_celsius ? h.temp_celsius.toFixed(1)+'°C' : '-'}</td>
+                            <td>${h.memory_used || '-'}</td>
+                            <td>${h.load_avg !== undefined ? h.load_avg.toFixed(2) : '-'}</td>
+                            <td>${h.chromium_processes !== undefined ? h.chromium_processes : '-'}</td>
+                            <td style="color: ${h.gateway_status === 'running' ? '#2ed573' : '#ff4757'}">${h.gateway_status === 'running' ? '✓' : h.gateway_status === 'stopped' ? '✗' : '-'}</td>
+                            <td>${h.total_calls || '-'}</td>
+                            <td>${h.total_tokens ? formatTokens(h.total_tokens) : '-'}</td>
+                            <td style="color: ${h.total_errors > 0 ? '#ff4757' : '#888'}">${h.total_errors || '-'}</td>
+                        </tr>
+                    `).join('');
+                }
                 
             } catch (e) {
                 console.error('Error loading data:', e);
