@@ -143,7 +143,7 @@
                 ]);
                 
                 const data = await dataRes.json();
-                const historyText = await historyRes.text();
+                alert("historyRes status: " + historyRes.status); const historyText = await historyRes.text();
                 const history = JSON.parse(historyText);
                 
                 console.log("Data loaded:", data); alert("Data: " + JSON.stringify(data).substring(0,200));
