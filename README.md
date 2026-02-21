@@ -78,9 +78,31 @@ git push
 4. Save
 
 ### 5. Share with Annie
-Send her: `https://n Nelliebot.github.io/system-monitor/dashboard.html`
+Send her: `https://nelliebot.github.io/system-monitor/encrypted/dashboard.html`
 
-She enters the password you gave her, and it decrypts in-browser.
+She enters the password (`nellie123`), and it decrypts in-browser.
+
+### 6. Auto-Decrypt URL (Optional)
+To create a URL that auto-decrypts without entering the password:
+
+**Option A: Remember Me (Recommended)**
+1. Open the dashboard
+2. Enter password and check "Remember Me"
+3. Future visits auto-decrypt from localStorage
+
+**Option B: URL Fragment**
+Append the password as a URL fragment (hash):
+```
+https://nelliebot.github.io/system-monitor/encrypted/dashboard.html#staticrypt_pwd=nellie123
+```
+⚠️ **Warning:** This exposes the password in the URL. Only use for personal/testing. The fragment (#...) doesn't send to the server, but it's visible in browser history.
+
+**Option C: Generate Secure Auto-Decrypt URL**
+For a production-ready auto-decrypt link, use staticrypt's `--remember` option:
+```bash
+npx staticrypt dashboard.html nellie123 --remember --output encrypted/dashboard.html
+```
+This enables auto-decrypt from localStorage on first successful login.
 
 ## Security Notes
 
