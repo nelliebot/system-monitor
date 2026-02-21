@@ -38,27 +38,27 @@
             <div class="grid">
                 <div class="card">
                     <h3>CPU Temp</h3>
-                    <div class="value" id="temp">--</div>
+                    <div class="value" id="temp">LOADING</div>
                 </div>
                 <div class="card">
                     <h3>Memory</h3>
-                    <div class="value" id="memory">--</div>
+                    <div class="value" id="memory">LOADING</div>
                 </div>
                 <div class="card">
                     <h3>Load Avg</h3>
-                    <div class="value" id="load">--</div>
+                    <div class="value" id="load">LOADING</div>
                 </div>
                 <div class="card">
                     <h3>Chromium</h3>
-                    <div class="value" id="chromium">--</div>
+                    <div class="value" id="chromium">LOADING</div>
                 </div>
                 <div class="card">
                     <h3>Gateway</h3>
-                    <div class="value" id="gateway">--</div>
+                    <div class="value" id="gateway">LOADING</div>
                 </div>
                 <div class="card">
                     <h3>Uptime</h3>
-                    <div class="value" id="uptime">--</div>
+                    <div class="value" id="uptime">LOADING</div>
                 </div>
             </div>
         </div>
@@ -68,23 +68,23 @@
             <div class="grid">
                 <div class="card">
                     <h3>Total Calls</h3>
-                    <div class="value" id="total_calls">--</div>
+                    <div class="value" id="total_calls">LOADING</div>
                 </div>
                 <div class="card">
                     <h3>Total Tokens</h3>
-                    <div class="value" id="total_tokens">--</div>
+                    <div class="value" id="total_tokens">LOADING</div>
                 </div>
                 <div class="card">
                     <h3>Input Tokens</h3>
-                    <div class="value" id="input_tokens">--</div>
+                    <div class="value" id="input_tokens">LOADING</div>
                 </div>
                 <div class="card">
                     <h3>Output Tokens</h3>
-                    <div class="value" id="output_tokens">--</div>
+                    <div class="value" id="output_tokens">LOADING</div>
                 </div>
                 <div class="card">
                     <h3>Errors</h3>
-                    <div class="value" id="total_errors">--</div>
+                    <div class="value" id="total_errors">LOADING</div>
                 </div>
             </div>
         </div>
@@ -106,7 +106,7 @@
                     </tr>
                 </thead>
                 <tbody id="history-body">
-                    <tr><td colspan="9">Loading...</td></tr>
+                    <tr><td colspan="9">LOADING...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -114,8 +114,9 @@
         <div class="timestamp">Last updated: <span id="timestamp">--</span></div>
     </div>
 
-    <script>alert("JS running");
-
+    <script>
+        alert("Script starting!");
+        
         function formatTime(ts) {
             if (!ts) return '--';
             const d = new Date(ts);
@@ -137,83 +138,46 @@
 
         async function loadData() {
             try {
-                const [dataRes, historyRes] = await Promise.all([
-                    fetch('data.json'),
-                    fetch('history.json')
-                ]);
-                
+                alert("Fetching data.json...");
+                const dataRes = await fetch('data.json');
+                alert("data.json status: " + dataRes.status);
                 const data = await dataRes.json();
-                alert("historyRes status: " + historyRes.status); const historyText = await historyRes.text();
-                const history = JSON.parse(historyText);
+                alert("Got data, temp is: " + data.temp_celsius);
                 
-                console.log("Data loaded:", data); alert("Data: " + JSON.stringify(data).substring(0,200));
+                document.getElementById('temp').textContent = data.temp_celsius.toFixed(1) + '°C';
+                document.getElementById('memory').textContent = data.memory_used;
+                document.getElementById('load').textContent = data.load_avg.toFixed(2);
+                document.getElementById('chromium').textContent = data.chromium_processes;
+                document.getElementById('gateway').textContent = data.gateway_status === 'running' ? '✓' : '✗';
+                document.getElementById('uptime').textContent = data.uptime;
                 
-                // System stats - with safety checks
-                alert("Setting temp..."); if (data.temp_celsius !== undefined) {
-                    document.getElementById('temp').textContent = data.temp_celsius.toFixed(1) + '°C'; alert('temp set to ' + data.temp_celsius);
-                    document.getElementById('temp').className = 'value ' + getTempClass(data.temp_celsius);
-                }
-                
-                if (data.memory_used) {
-                    document.getElementById('memory').textContent = data.memory_used;
-                }
-                
-                if (data.load_avg !== undefined) {
-                    document.getElementById('load').textContent = data.load_avg.toFixed(2);
-                }
-                
-                if (data.chromium_processes !== undefined) {
-                    document.getElementById('chromium').textContent = data.chromium_processes;
-                }
-                
-                if (data.gateway_status) {
-                    const gw = document.getElementById('gateway');
-                    gw.textContent = data.gateway_status === 'running' ? '✓' : '✗';
-                    gw.className = 'value ' + (data.gateway_status === 'running' ? 'success' : 'danger');
-                }
-                
-                if (data.uptime) {
-                    document.getElementById('uptime').textContent = data.uptime.split(' ').slice(0,4).join(' ');
-                }
-                
-                // Usage stats
-                if (data.usage) {
-                    document.getElementById('total_calls').textContent = data.usage.total_calls_24h || 0;
-                    document.getElementById('total_tokens').textContent = formatTokens(data.usage.total_tokens_24h);
-                    document.getElementById('input_tokens').textContent = formatTokens(data.usage.total_input_24h);
-                    document.getElementById('output_tokens').textContent = formatTokens(data.usage.total_output_24h);
-                    
-                    const errEl = document.getElementById('total_errors');
-                    errEl.textContent = data.usage.total_errors_24h || 0;
-                }
+                document.getElementById('total_calls').textContent = data.usage.total_calls_24h || 0;
+                document.getElementById('total_tokens').textContent = formatTokens(data.usage.total_tokens_24h);
+                document.getElementById('input_tokens').textContent = formatTokens(data.usage.total_input_24h);
+                document.getElementById('output_tokens').textContent = formatTokens(data.usage.total_output_24h);
+                document.getElementById('total_errors').textContent = data.usage.total_errors_24h || 0;
                 
                 document.getElementById('timestamp').textContent = new Date(data.timestamp).toLocaleString();
                 
-                // History table
+                alert("Fetching history.json...");
+                const historyRes = await fetch('history.json');
+                alert("history.json status: " + historyRes.status);
+                const history = await historyRes.json();
+                alert("Got " + history.length + " history items");
+                
                 const tbody = document.getElementById('history-body');
-                if (history && history.length > 0) {
-                    tbody.innerHTML = history.slice().reverse().slice(0, 20).map(h => `
-                        <tr>
-                            <td>${formatTime(h.timestamp)}</td>
-                            <td class="${getTempClass(h.temp_celsius)}">${h.temp_celsius ? h.temp_celsius.toFixed(1)+'°C' : '-'}</td>
-                            <td>${h.memory_used || '-'}</td>
-                            <td>${h.load_avg !== undefined ? h.load_avg.toFixed(2) : '-'}</td>
-                            <td>${h.chromium_processes !== undefined ? h.chromium_processes : '-'}</td>
-                            <td style="color: ${h.gateway_status === 'running' ? '#2ed573' : '#ff4757'}">${h.gateway_status === 'running' ? '✓' : h.gateway_status === 'stopped' ? '✗' : '-'}</td>
-                            <td>${h.total_calls || '-'}</td>
-                            <td>${h.total_tokens ? formatTokens(h.total_tokens) : '-'}</td>
-                            <td style="color: ${h.total_errors > 0 ? '#ff4757' : '#888'}">${h.total_errors || '-'}</td>
-                        </tr>
-                    `).join('');
-                }
+                tbody.innerHTML = history.slice().reverse().slice(0, 5).map(h => 
+                    "<tr><td>" + formatTime(h.timestamp) + "</td><td>" + (h.temp_celsius ? h.temp_celsius.toFixed(1)+'°C' : '-') + "</td><td>" + (h.memory_used || '-') + "</td><td>" + (h.load_avg || '-') + "</td><td>" + (h.chromium_processes || '0') + "</td><td>" + (h.gateway_status || '-') + "</td><td>" + (h.total_calls || '-') + "</td><td>" + (h.total_tokens || '-') + "</td><td>" + (h.total_errors || '-') + "</td></tr>"
+                ).join('');
+                
+                alert("Done!");
                 
             } catch (e) {
-                console.error("Error loading data:", e); alert("Fetch error: " + e.message); document.getElementById("history-body").innerHTML = "<tr><td colspan=9 style=color:red>Error: " + e.message + "</td></tr>";
+                alert("Error: " + e.message);
             }
         }
         
         loadData();
-        setInterval(loadData, 30000);
     </script>
 </body>
 </html>
