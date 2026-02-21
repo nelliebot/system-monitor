@@ -7,25 +7,33 @@
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #1a1a2e; color: #eee; min-height: 100vh; padding: 20px; }
-        .container { max-width: 800px; margin: 0 auto; }
+        .container { max-width: 900px; margin: 0 auto; }
         h1 { text-align: center; margin-bottom: 30px; color: #00d9ff; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 30px; }
         .card { background: #16213e; border-radius: 12px; padding: 20px; text-align: center; }
-        .card h3 { font-size: 14px; color: #888; margin-bottom: 8px; text-transform: uppercase; }
-        .card .value { font-size: 28px; font-weight: bold; color: #00d9ff; }
+        .card h3 { font-size: 12px; color: #888; margin-bottom: 8px; text-transform: uppercase; }
+        .card .value { font-size: 24px; font-weight: bold; color: #00d9ff; }
         .card .value.warning { color: #ffc107; }
         .card .value.danger { color: #ff4757; }
         .card .value.success { color: #2ed573; }
+        
+        .history-section { margin-top: 40px; }
+        .history-section h2 { color: #00d9ff; margin-bottom: 15px; font-size: 18px; }
+        .history-table { width: 100%; border-collapse: collapse; background: #16213e; border-radius: 12px; overflow: hidden; }
+        .history-table th { background: #0f3460; padding: 12px 8px; text-align: left; font-size: 12px; color: #888; text-transform: uppercase; }
+        .history-table td { padding: 10px 8px; border-top: 1px solid #1a1a2e; font-size: 13px; }
+        .history-table tr:hover { background: #1f2b47; }
+        
         .timestamp { text-align: center; margin-top: 30px; color: #666; font-size: 12px; }
-        .uptime { margin-top: 20px; text-align: center; color: #888; }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>🦞 Nellie's System Monitor</h1>
+        
         <div class="grid">
             <div class="card">
-                <h3>CPU Temperature</h3>
+                <h3>CPU Temp</h3>
                 <div class="value" id="temp">--</div>
             </div>
             <div class="card">
@@ -33,7 +41,7 @@
                 <div class="value" id="memory">--</div>
             </div>
             <div class="card">
-                <h3>Load Average</h3>
+                <h3>Load Avg</h3>
                 <div class="value" id="load">--</div>
             </div>
             <div class="card">
@@ -46,47 +54,88 @@
             </div>
             <div class="card">
                 <h3>Uptime</h3>
-                <div class="value" id="uptime-card">--</div>
+                <div class="value" id="uptime" style="font-size: 16px;">--</div>
             </div>
         </div>
+
+        <div class="history-section">
+            <h2>📊 History (Last 20 Readings)</h2>
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Temp</th>
+                        <th>Memory</th>
+                        <th>Load</th>
+                        <th>Chromium</th>
+                        <th>Gateway</th>
+                    </tr>
+                </thead>
+                <tbody id="history-body">
+                    <tr><td colspan="6">Loading...</td></tr>
+                </tbody>
+            </table>
+        </div>
+        
         <div class="timestamp">Last updated: <span id="timestamp">--</span></div>
-        <div class="uptime" id="uptime"></div>
     </div>
+
     <script>
+        function formatTime(ts) {
+            const d = new Date(ts);
+            return d.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+        }
+        
+        function getTempClass(temp) {
+            if (temp > 70) return 'danger';
+            if (temp > 60) return 'warning';
+            return '';
+        }
+
         async function loadData() {
             try {
-                const response = await fetch('data.json');
-                const data = await response.json();
+                const [dataRes, historyRes] = await Promise.all([
+                    fetch('data.json'),
+                    fetch('history.json')
+                ]);
+                const data = await dataRes.json();
+                const history = await historyRes.json();
                 
-                // Temperature
+                // Current stats
                 const temp = document.getElementById('temp');
                 temp.textContent = data.temp_celsius.toFixed(1) + '°C';
-                temp.className = 'value' + (data.temp_celsius > 70 ? ' danger' : data.temp_celsius > 60 ? ' warning' : '');
+                temp.className = 'value ' + getTempClass(data.temp_celsius);
                 
-                // Memory
                 document.getElementById('memory').textContent = data.memory_used;
                 
-                // Load
                 const load = document.getElementById('load');
                 load.textContent = data.load_avg.toFixed(2);
                 load.className = 'value' + (data.load_avg > 4 ? ' danger' : data.load_avg > 2 ? ' warning' : '');
                 
-                // Chromium
                 const chromium = document.getElementById('chromium');
                 chromium.textContent = data.chromium_processes;
                 chromium.className = 'value' + (data.chromium_processes > 10 ? ' warning' : '');
                 
-                // Gateway
                 const gateway = document.getElementById('gateway');
                 gateway.textContent = data.gateway_status === 'running' ? '✓' : '✗';
                 gateway.className = 'value ' + (data.gateway_status === 'running' ? 'success' : 'danger');
                 
-                // Uptime
-                document.getElementById('uptime-card').textContent = data.uptime.split(' ')[1];
-                document.getElementById('uptime').textContent = data.uptime;
-                
-                // Timestamp
+                document.getElementById('uptime').textContent = data.uptime.split(' ').slice(0,2).join(' ');
                 document.getElementById('timestamp').textContent = new Date(data.timestamp).toLocaleString();
+                
+                // History table (show last 20, reversed to newest first)
+                const tbody = document.getElementById('history-body');
+                tbody.innerHTML = history.slice().reverse().slice(0, 20).map(h => `
+                    <tr>
+                        <td>${formatTime(h.timestamp)}</td>
+                        <td class="${getTempClass(h.temp_celsius)}">${h.temp_celsius.toFixed(1)}°C</td>
+                        <td>${h.memory_used}</td>
+                        <td>${h.load_avg.toFixed(2)}</td>
+                        <td>${h.chromium_processes}</td>
+                        <td style="color: ${h.gateway_status === 'running' ? '#2ed573' : '#ff4757'}">${h.gateway_status}</td>
+                    </tr>
+                `).join('');
+                
             } catch (e) {
                 console.error('Error loading data:', e);
             }
