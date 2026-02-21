@@ -208,7 +208,7 @@
                 }
                 
             } catch (e) {
-                console.error("Error loading data:", e); document.getElementById("history-body").innerHTML = "<tr><td colspan=9 style=color:red>Error: " + e.message + "</td></tr>";
+                console.error("Error loading data:", e); alert("Fetch error: " + e.message); document.getElementById("history-body").innerHTML = "<tr><td colspan=9 style=color:red>Error: " + e.message + "</td></tr>";
             }
         }
         
