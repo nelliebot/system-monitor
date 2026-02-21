@@ -1,11 +1,11 @@
 {
-  "timestamp": "2026-02-21T22:45:01Z",
+  "timestamp": "2026-02-21T22:45:04Z",
   "temp_celsius": 62.3,
   "memory_used": "1.5GiB/7.6Gi",
   "memory_used_raw": "1.5Gi",
   "memory_total_raw": "7.6Gi",
   "swap_used": "0B",
-  "load_avg": "0.14",
+  "load_avg": "0.13",
   "chromium_processes": 0,
   "gateway_status": "running",
   "active_sessions": 2,
