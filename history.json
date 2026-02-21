@@ -1,15 +1,5 @@
 [
   {
-    "timestamp": "2026-02-19T20:55:01-05:00",
-    "temp_celsius": 55.991,
-    "memory_used": "1.9Gi/7.6Gi",
-    "load_avg": 0.15,
-    "chromium_processes": 0,
-    "gateway_status": "running",
-    "active_sessions": 1,
-    "agent_status": "active"
-  },
-  {
     "timestamp": "2026-02-19T21:00:01-05:00",
     "temp_celsius": 55.504,
     "memory_used": "1.9Gi/7.6Gi",
@@ -2875,6 +2865,16 @@
     "memory_used": "2.1Gi/7.6Gi",
     "load_avg": 0.05,
     "chromium_processes": 11,
+    "gateway_status": "running",
+    "active_sessions": 1,
+    "agent_status": "active"
+  },
+  {
+    "timestamp": "2026-02-21T05:35:01-05:00",
+    "temp_celsius": 56.965,
+    "memory_used": "2.1Gi/7.6Gi",
+    "load_avg": 0.21,
+    "chromium_processes": 12,
     "gateway_status": "running",
     "active_sessions": 1,
     "agent_status": "active"
