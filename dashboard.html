@@ -7,21 +7,23 @@
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #1a1a2e; color: #eee; min-height: 100vh; padding: 20px; }
-        .container { max-width: 900px; margin: 0 auto; }
+        .container { max-width: 1100px; margin: 0 auto; }
         h1 { text-align: center; margin-bottom: 30px; color: #00d9ff; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 30px; }
+        h2 { color: #00d9ff; margin-bottom: 15px; font-size: 18px; margin-top: 30px; }
+        
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; margin-bottom: 20px; }
         .card { background: #16213e; border-radius: 12px; padding: 20px; text-align: center; }
-        .card h3 { font-size: 12px; color: #888; margin-bottom: 8px; text-transform: uppercase; }
-        .card .value { font-size: 24px; font-weight: bold; color: #00d9ff; }
+        .card h3 { font-size: 11px; color: #888; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .card .value { font-size: 22px; font-weight: bold; color: #00d9ff; }
         .card .value.warning { color: #ffc107; }
         .card .value.danger { color: #ff4757; }
         .card .value.success { color: #2ed573; }
         
-        .history-section { margin-top: 40px; }
-        .history-section h2 { color: #00d9ff; margin-bottom: 15px; font-size: 18px; }
+        .section { margin-bottom: 30px; }
+        
         .history-table { width: 100%; border-collapse: collapse; background: #16213e; border-radius: 12px; overflow: hidden; }
-        .history-table th { background: #0f3460; padding: 12px 8px; text-align: left; font-size: 12px; color: #888; text-transform: uppercase; }
-        .history-table td { padding: 10px 8px; border-top: 1px solid #1a1a2e; font-size: 13px; }
+        .history-table th { background: #0f3460; padding: 10px 8px; text-align: left; font-size: 11px; color: #888; text-transform: uppercase; }
+        .history-table td { padding: 8px; border-top: 1px solid #1a1a2e; font-size: 12px; }
         .history-table tr:hover { background: #1f2b47; }
         
         .timestamp { text-align: center; margin-top: 30px; color: #666; font-size: 12px; }
@@ -31,35 +33,67 @@
     <div class="container">
         <h1>🦞 Nellie's System Monitor</h1>
         
-        <div class="grid">
-            <div class="card">
-                <h3>CPU Temp</h3>
-                <div class="value" id="temp">--</div>
-            </div>
-            <div class="card">
-                <h3>Memory</h3>
-                <div class="value" id="memory">--</div>
-            </div>
-            <div class="card">
-                <h3>Load Avg</h3>
-                <div class="value" id="load">--</div>
-            </div>
-            <div class="card">
-                <h3>Chromium</h3>
-                <div class="value" id="chromium">--</div>
-            </div>
-            <div class="card">
-                <h3>Gateway</h3>
-                <div class="value" id="gateway">--</div>
-            </div>
-            <div class="card">
-                <h3>Uptime</h3>
-                <div class="value" id="uptime" style="font-size: 16px;">--</div>
+        <!-- System Stats -->
+        <div class="section">
+            <h2>🔧 System</h2>
+            <div class="grid">
+                <div class="card">
+                    <h3>CPU Temp</h3>
+                    <div class="value" id="temp">--</div>
+                </div>
+                <div class="card">
+                    <h3>Memory</h3>
+                    <div class="value" id="memory">--</div>
+                </div>
+                <div class="card">
+                    <h3>Load Avg</h3>
+                    <div class="value" id="load">--</div>
+                </div>
+                <div class="card">
+                    <h3>Chromium</h3>
+                    <div class="value" id="chromium">--</div>
+                </div>
+                <div class="card">
+                    <h3>Gateway</h3>
+                    <div class="value" id="gateway">--</div>
+                </div>
+                <div class="card">
+                    <h3>Uptime</h3>
+                    <div class="value" id="uptime" style="font-size: 14px;">--</div>
+                </div>
             </div>
         </div>
 
-        <div class="history-section">
-            <h2>📊 History (Last 20 Readings)</h2>
+        <!-- Usage Stats -->
+        <div class="section">
+            <h2>📡 API Usage (Last 24h)</h2>
+            <div class="grid">
+                <div class="card">
+                    <h3>Total Calls</h3>
+                    <div class="value" id="total_calls">--</div>
+                </div>
+                <div class="card">
+                    <h3>Total Tokens</h3>
+                    <div class="value" id="total_tokens">--</div>
+                </div>
+                <div class="card">
+                    <h3>Input Tokens</h3>
+                    <div class="value" id="input_tokens">--</div>
+                </div>
+                <div class="card">
+                    <h3>Output Tokens</h3>
+                    <div class="value" id="output_tokens">--</div>
+                </div>
+                <div class="card">
+                    <h3>Errors</h3>
+                    <div class="value" id="total_errors">--</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- History -->
+        <div class="section">
+            <h2>📊 History</h2>
             <table class="history-table">
                 <thead>
                     <tr>
@@ -67,12 +101,15 @@
                         <th>Temp</th>
                         <th>Memory</th>
                         <th>Load</th>
-                        <th>Chromium</th>
+                        <th>Chrom</th>
                         <th>Gateway</th>
+                        <th>Calls</th>
+                        <th>Tokens</th>
+                        <th>Errs</th>
                     </tr>
                 </thead>
                 <tbody id="history-body">
-                    <tr><td colspan="6">Loading...</td></tr>
+                    <tr><td colspan="9">Loading...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -84,6 +121,13 @@
         function formatTime(ts) {
             const d = new Date(ts);
             return d.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+        }
+        
+        function formatTokens(n) {
+            if (!n) return '-';
+            if (n >= 1000000) return (n/1000000).toFixed(1) + 'M';
+            if (n >= 1000) return (n/1000).toFixed(1) + 'K';
+            return n;
         }
         
         function getTempClass(temp) {
@@ -101,7 +145,7 @@
                 const data = await dataRes.json();
                 const history = await historyRes.json();
                 
-                // Current stats
+                // System stats
                 const temp = document.getElementById('temp');
                 temp.textContent = data.temp_celsius.toFixed(1) + '°C';
                 temp.className = 'value ' + getTempClass(data.temp_celsius);
@@ -121,9 +165,22 @@
                 gateway.className = 'value ' + (data.gateway_status === 'running' ? 'success' : 'danger');
                 
                 document.getElementById('uptime').textContent = data.uptime.split(' ').slice(0,4).join(' ');
+                
+                // Usage stats
+                const usage = data.usage || {};
+                document.getElementById('total_calls').textContent = usage.total_calls_24h || 0;
+                document.getElementById('total_tokens').textContent = formatTokens(usage.total_tokens_24h);
+                document.getElementById('input_tokens').textContent = formatTokens(usage.total_input_24h);
+                document.getElementById('output_tokens').textContent = formatTokens(usage.total_output_24h);
+                
+                const errorsEl = document.getElementById('total_errors');
+                const errors = usage.total_errors_24h || 0;
+                errorsEl.textContent = errors;
+                errorsEl.className = 'value' + (errors > 10 ? ' danger' : errors > 0 ? ' warning' : '');
+                
                 document.getElementById('timestamp').textContent = new Date(data.timestamp).toLocaleString();
                 
-                // History table (show last 20, reversed to newest first)
+                // History table
                 const tbody = document.getElementById('history-body');
                 tbody.innerHTML = history.slice().reverse().slice(0, 20).map(h => `
                     <tr>
@@ -132,7 +189,10 @@
                         <td>${h.memory_used}</td>
                         <td>${h.load_avg.toFixed(2)}</td>
                         <td>${h.chromium_processes}</td>
-                        <td style="color: ${h.gateway_status === 'running' ? '#2ed573' : '#ff4757'}">${h.gateway_status}</td>
+                        <td style="color: ${h.gateway_status === 'running' ? '#2ed573' : '#ff4757'}">${h.gateway_status === 'running' ? '✓' : '✗'}</td>
+                        <td>${h.total_calls || '-'}</td>
+                        <td>${h.total_tokens ? formatTokens(h.total_tokens) : '-'}</td>
+                        <td style="color: ${h.total_errors > 0 ? '#ff4757' : '#888'}">${h.total_errors || '-'}</td>
                     </tr>
                 `).join('');
                 
