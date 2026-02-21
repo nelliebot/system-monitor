@@ -149,8 +149,8 @@
                 console.log("Data loaded:", data); alert("Data: " + JSON.stringify(data).substring(0,200));
                 
                 // System stats - with safety checks
-                if (data.temp_celsius !== undefined) {
-                    document.getElementById('temp').textContent = data.temp_celsius.toFixed(1) + '°C';
+                alert("Setting temp..."); if (data.temp_celsius !== undefined) {
+                    document.getElementById('temp').textContent = data.temp_celsius.toFixed(1) + '°C'; alert('temp set to ' + data.temp_celsius);
                     document.getElementById('temp').className = 'value ' + getTempClass(data.temp_celsius);
                 }
                 
