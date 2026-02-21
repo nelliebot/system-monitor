@@ -2,182 +2,44 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nellie's System Monitor</title>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #1a1a2e; color: #eee; min-height: 100vh; padding: 20px; }
-        .container { max-width: 1100px; margin: 0 auto; }
-        h1 { text-align: center; margin-bottom: 30px; color: #00d9ff; }
-        h2 { color: #00d9ff; margin-bottom: 15px; font-size: 18px; margin-top: 30px; }
-        
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; margin-bottom: 20px; }
-        .card { background: #16213e; border-radius: 12px; padding: 20px; text-align: center; }
-        .card h3 { font-size: 11px; color: #888; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
-        .card .value { font-size: 22px; font-weight: bold; color: #00d9ff; }
-        .card .value.warning { color: #ffc107; }
-        .card .value.danger { color: #ff4757; }
-        .card .value.success { color: #2ed573; }
-        
-        .section { margin-bottom: 30px; }
-        
-        .history-table { width: 100%; border-collapse: collapse; background: #16213e; border-radius: 12px; overflow: hidden; }
-        .history-table th { background: #0f3460; padding: 10px 8px; text-align: left; font-size: 11px; color: #888; text-transform: uppercase; }
-        .history-table td { padding: 8px; border-top: 1px solid #1a1a2e; font-size: 12px; }
-        .history-table tr:hover { background: #1f2b47; }
-        
-        .timestamp { text-align: center; margin-top: 30px; color: #666; font-size: 12px; }
-    </style>
+    <title>Test with Fetch</title>
 </head>
-<body>
-    <div class="container">
-        <h1>🦞 Nellie's System Monitor</h1>
-        
-        <div class="section">
-            <h2>🔧 System</h2>
-            <div class="grid">
-                <div class="card">
-                    <h3>CPU Temp</h3>
-                    <div class="value" id="temp">LOADING</div>
-                </div>
-                <div class="card">
-                    <h3>Memory</h3>
-                    <div class="value" id="memory">LOADING</div>
-                </div>
-                <div class="card">
-                    <h3>Load Avg</h3>
-                    <div class="value" id="load">LOADING</div>
-                </div>
-                <div class="card">
-                    <h3>Chromium</h3>
-                    <div class="value" id="chromium">LOADING</div>
-                </div>
-                <div class="card">
-                    <h3>Gateway</h3>
-                    <div class="value" id="gateway">LOADING</div>
-                </div>
-                <div class="card">
-                    <h3>Uptime</h3>
-                    <div class="value" id="uptime">LOADING</div>
-                </div>
-            </div>
+<body style="background:#1a1a2e;color:#fff;font-family:sans-serif;padding:20px;">
+    <h1>🦞 Test with Fetch</h1>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
+        <div style="background:#16213e;padding:20px;border-radius:8px;text-align:center;">
+            <div style="color:#888;font-size:12px;">TEMP</div>
+            <div id="temp" style="font-size:24px;color:#00d9ff;">--</div>
         </div>
-
-        <div class="section">
-            <h2>📡 API Usage (Last 24h)</h2>
-            <div class="grid">
-                <div class="card">
-                    <h3>Total Calls</h3>
-                    <div class="value" id="total_calls">LOADING</div>
-                </div>
-                <div class="card">
-                    <h3>Total Tokens</h3>
-                    <div class="value" id="total_tokens">LOADING</div>
-                </div>
-                <div class="card">
-                    <h3>Input Tokens</h3>
-                    <div class="value" id="input_tokens">LOADING</div>
-                </div>
-                <div class="card">
-                    <h3>Output Tokens</h3>
-                    <div class="value" id="output_tokens">LOADING</div>
-                </div>
-                <div class="card">
-                    <h3>Errors</h3>
-                    <div class="value" id="total_errors">LOADING</div>
-                </div>
-            </div>
+        <div style="background:#16213e;padding:20px;border-radius:8px;text-align:center;">
+            <div style="color:#888;font-size:12px;">MEMORY</div>
+            <div id="memory" style="font-size:24px;color:#00d9ff;">--</div>
         </div>
-
-        <div class="section">
-            <h2>📊 History</h2>
-            <table class="history-table">
-                <thead>
-                    <tr>
-                        <th>Time</th>
-                        <th>Temp</th>
-                        <th>Memory</th>
-                        <th>Load</th>
-                        <th>Chrom</th>
-                        <th>Gateway</th>
-                        <th>Calls</th>
-                        <th>Tokens</th>
-                        <th>Errs</th>
-                    </tr>
-                </thead>
-                <tbody id="history-body">
-                    <tr><td colspan="9">LOADING...</td></tr>
-                </tbody>
-            </table>
+        <div style="background:#16213e;padding:20px;border-radius:8px;text-align:center;">
+            <div style="color:#888;font-size:12px;">CALLS</div>
+            <div id="calls" style="font-size:24px;color:#00d9ff;">--</div>
         </div>
-        
-        <div class="timestamp">Last updated: <span id="timestamp">--</span></div>
     </div>
-
+    <p id="status" style="margin-top:20px;color:#888;">Loading...</p>
     <script>
-        alert("Script starting!");
-        
-        function formatTime(ts) {
-            if (!ts) return '--';
-            const d = new Date(ts);
-            return d.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
-        }
-        
-        function formatTokens(n) {
-            if (!n) return '-';
-            if (n >= 1000000) return (n/1000000).toFixed(1) + 'M';
-            if (n >= 1000) return (n/1000).toFixed(1) + 'K';
-            return n;
-        }
-        
-        function getTempClass(temp) {
-            if (temp > 70) return 'danger';
-            if (temp > 60) return 'warning';
-            return '';
-        }
-
-        async function loadData() {
+        async function load() {
             try {
-                alert("Fetching data.json...");
-                const dataRes = await fetch('data.json');
-                alert("data.json status: " + dataRes.status);
-                const data = await dataRes.json();
-                alert("Got data, temp is: " + data.temp_celsius);
+                const res = await fetch('data.json');
+                const data = await res.json();
                 
-                document.getElementById('temp').textContent = data.temp_celsius.toFixed(1) + '°C';
+                alert("data.temp_celsius = " + data.temp_celsius + "\ndata.memory_used = " + data.memory_used + "\ndata.usage = " + JSON.stringify(data.usage));
+                
+                document.getElementById('temp').textContent = data.temp_celsius + "°C";
                 document.getElementById('memory').textContent = data.memory_used;
-                document.getElementById('load').textContent = data.load_avg.toFixed(2);
-                document.getElementById('chromium').textContent = data.chromium_processes;
-                document.getElementById('gateway').textContent = data.gateway_status === 'running' ? '✓' : '✗';
-                document.getElementById('uptime').textContent = data.uptime;
+                document.getElementById('calls').textContent = data.usage.total_calls_24h;
+                document.getElementById('status').textContent = "Updated!";
                 
-                document.getElementById('total_calls').textContent = data.usage.total_calls_24h || 0;
-                document.getElementById('total_tokens').textContent = formatTokens(data.usage.total_tokens_24h);
-                document.getElementById('input_tokens').textContent = formatTokens(data.usage.total_input_24h);
-                document.getElementById('output_tokens').textContent = formatTokens(data.usage.total_output_24h);
-                document.getElementById('total_errors').textContent = data.usage.total_errors_24h || 0;
-                
-                document.getElementById('timestamp').textContent = new Date(data.timestamp).toLocaleString();
-                
-                alert("Fetching history.json...");
-                const historyRes = await fetch('history.json');
-                alert("history.json status: " + historyRes.status);
-                const history = await historyRes.json();
-                alert("Got " + history.length + " history items");
-                
-                const tbody = document.getElementById('history-body');
-                tbody.innerHTML = history.slice().reverse().slice(0, 5).map(h => 
-                    "<tr><td>" + formatTime(h.timestamp) + "</td><td>" + (h.temp_celsius ? h.temp_celsius.toFixed(1)+'°C' : '-') + "</td><td>" + (h.memory_used || '-') + "</td><td>" + (h.load_avg || '-') + "</td><td>" + (h.chromium_processes || '0') + "</td><td>" + (h.gateway_status || '-') + "</td><td>" + (h.total_calls || '-') + "</td><td>" + (h.total_tokens || '-') + "</td><td>" + (h.total_errors || '-') + "</td></tr>"
-                ).join('');
-                
-                alert("Done!");
-                
-            } catch (e) {
+                alert("Values set!");
+            } catch(e) {
                 alert("Error: " + e.message);
             }
         }
-        
-        loadData();
+        load();
     </script>
 </body>
 </html>
