@@ -120,7 +120,7 @@
                 gateway.textContent = data.gateway_status === 'running' ? '✓' : '✗';
                 gateway.className = 'value ' + (data.gateway_status === 'running' ? 'success' : 'danger');
                 
-                document.getElementById('uptime').textContent = data.uptime.split(' ').slice(0,2).join(' ');
+                document.getElementById('uptime').textContent = data.uptime.split(' ').slice(0,4).join(' ');
                 document.getElementById('timestamp').textContent = new Date(data.timestamp).toLocaleString();
                 
                 // History table (show last 20, reversed to newest first)
