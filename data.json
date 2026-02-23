@@ -1,20 +1,20 @@
 {
-  "timestamp": "2026-02-23T01:50:01Z",
+  "timestamp": "2026-02-23T01:55:01Z",
   "temp_celsius": 55.0,
   "memory_used": "1.5GiB/7.6Gi",
   "memory_used_raw": "1.5Gi",
   "memory_total_raw": "7.6Gi",
   "swap_used": "0B",
-  "load_avg": "0.06",
+  "load_avg": "0.16",
   "chromium_processes": 0,
   "gateway_status": "running",
   "active_sessions": 1,
-  "uptime": "up 1 day, 8 hours, 38 minutes",
+  "uptime": "up 1 day, 8 hours, 43 minutes",
   "usage": {
-    "total_calls_24h": 540,
-    "total_tokens_24h": 51041470,
-    "total_input_24h": 33677014,
-    "total_output_24h": 73423,
+    "total_calls_24h": 556,
+    "total_tokens_24h": 51660993,
+    "total_input_24h": 33942184,
+    "total_output_24h": 75815,
     "total_errors_24h": 5
   }
 }
