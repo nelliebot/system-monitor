@@ -1,6 +1,6 @@
 {
-  "timestamp": "2026-03-04T18:30:01Z",
-  "temp_celsius": 57.0,
+  "timestamp": "2026-03-04T18:35:01Z",
+  "temp_celsius": 56.0,
   "memory_used": "1.4GiB/7.6Gi",
   "memory_used_raw": "1.4Gi",
   "memory_total_raw": "7.6Gi",
@@ -9,7 +9,7 @@
   "chromium_processes": 0,
   "gateway_status": "running",
   "active_sessions": 1,
-  "uptime": "up 25 minutes",
+  "uptime": "up 30 minutes",
   "usage": {
     "total_calls_24h": 212,
     "total_tokens_24h": 3524991,
